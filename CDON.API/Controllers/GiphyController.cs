@@ -12,21 +12,29 @@ namespace CDON.API.Controllers
     [ApiController]
     public class GiphyController : ControllerBase
     {
+        private readonly static int limit = 20;
+
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public IActionResult Get(string q, int offset)
         {
             var client = new RestClient("http://api.giphy.com");
 
-            var request = new RestRequest("v1/gifs/trending", Method.GET);
+            var request = new RestRequest("v1/gifs/search", Method.GET);
             
             request.AddParameter("api_key", "kBsvqRlzJwdEsIL9V2BcLoVFz2kaRHtG");
-            request.AddParameter("limit", 1);
+            request.AddParameter("limit", limit);
+            request.AddParameter("offset", offset * limit);
+            request.AddParameter("q", q);
 
 
             IRestResponse response = client.Execute(request);
 
-            var content = response.Content;
+            if (!response.IsSuccessful)
+            {
+                return BadRequest();
+            }
 
+            var content = response.Content;
             return Ok(content);
         }
 
